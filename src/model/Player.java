@@ -1,9 +1,7 @@
 package model;
 
 import object.SuperObject;
-import utilities.Constants;
-import utilities.SoundAssets;
-import utilities.UtilityTool;
+import utilities.*;
 import view.GamePanel;
 import view.KeyHandler;
 
@@ -17,7 +15,7 @@ import java.util.Objects;
 public class Player extends Entity {
 
     GamePanel gp;
-    KeyHandler keyH;
+    public KeyHandler keyH; //Change back to private
 
     public final int screenX;
     public final int screenY;
@@ -25,12 +23,13 @@ public class Player extends Entity {
     private int standCounter = 0;
 
     public Player(GamePanel gp, KeyHandler keyH) {
+        super(gp);
         this.gp = gp;
         this.keyH = keyH;
 
         this.screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
         this.screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
-        ;
+
 
         this.solidArea = new Rectangle(10, 18, 30, 30);
 
@@ -43,11 +42,12 @@ public class Player extends Entity {
     }
 
 
+//    @Override
     public void setDefaultValues() {
         worldX = gp.tileSize * 23;
         worldY = gp.tileSize * 21;
         speed = 4;
-        direction = "down";
+        direction = EntityDirection.DOWN;
     }
 
 
@@ -72,6 +72,7 @@ public class Player extends Entity {
         }
     }
 
+    @Override
     public void update() {
 
         if (keyH.upPressed == true || keyH.downPressed == true || keyH.leftPressed == true || keyH.rightPressed == true) {
@@ -79,22 +80,22 @@ public class Player extends Entity {
 
             if (this.keyH.upPressed == true) {
 //			this.worldY -= this.speed;
-                this.direction = "up";
+                this.direction = EntityDirection.UP;
             }
 
             if (this.keyH.downPressed == true) {
 //			this.worldY += this.speed;
-                this.direction = "down";
+                this.direction = EntityDirection.DOWN;
             }
 
             if (this.keyH.leftPressed == true) {
 //			this.worldX -= this.speed;
-                this.direction = "left";
+                this.direction = EntityDirection.LEFT;
             }
 
             if (this.keyH.rightPressed == true) {
 //			this.worldX += this.speed;
-                this.direction = "right";
+                this.direction = EntityDirection.RIGHT;
             }
 
             //CHECK TILE COLLISION
@@ -105,19 +106,23 @@ public class Player extends Entity {
             int objectIndex = gp.collisionChecker.checkObject(this, true);
             pickUpObject(objectIndex);
 
+            //Check NPC Collision
+            Entities e = gp.collisionChecker.checkEntityCollision(this,gp.npcs);
+            interactWithNPC(e);
+
             //if the collision is false, player can move
             if (!collisionOn) {
                 switch (direction) {
-                    case "up":
+                    case UP:
                         this.worldY -= this.speed;
                         break;
-                    case "down":
+                    case DOWN:
                         this.worldY += this.speed;
                         break;
-                    case "left":
+                    case LEFT:
                         this.worldX -= this.speed;
                         break;
-                    case "right":
+                    case RIGHT:
                         this.worldX += this.speed;
                         break;
                 }
@@ -145,6 +150,12 @@ public class Player extends Entity {
         }
     }
 
+    private void interactWithNPC(Entities e) {
+        if(e != null) {
+            System.out.println("interactWithNPC"+ e.toString());
+        }
+    }
+
     private void pickUpObject(int objectIndex) {
         if (objectIndex >= 0 && objectIndex < gp.gameObjects.length) {
             SuperObject object = gp.gameObjects[objectIndex];
@@ -168,7 +179,7 @@ public class Player extends Entity {
         }
     }
 
-    public void draw(Graphics g2) {
+     public void draw(Graphics g2) {
 
 //		g2.setColor(Color.white);
 //		g2.fillRect(this.x, this.y, this.gp.tileSize, this.gp.tileSize);
@@ -176,7 +187,7 @@ public class Player extends Entity {
         BufferedImage image = null;
 
         switch (direction) {
-            case "up":
+            case UP:
 
                 if (spriteNum == 1) {
                     image = up1;
@@ -185,7 +196,7 @@ public class Player extends Entity {
                 }
                 break;
 
-            case "down":
+            case DOWN:
 
                 if (spriteNum == 1) {
                     image = down1;
@@ -195,7 +206,7 @@ public class Player extends Entity {
 
                 break;
 
-            case "right":
+            case RIGHT:
 //			image = right1;
 
                 if (spriteNum == 1) {
@@ -206,7 +217,7 @@ public class Player extends Entity {
 
                 break;
 
-            case "left":
+            case LEFT:
 //			image = left1;
 
                 if (spriteNum == 1) {

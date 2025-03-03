@@ -1,5 +1,7 @@
 package utilities;
 
+import model.Entity;
+import model.NPCOldMan;
 import object.OBJ_Generic;
 import object.OBJ_Key;
 import view.GamePanel;
@@ -39,5 +41,14 @@ public class AssetSetter {
 //		System.out.print("LOADED IMAGE" + this.gamePanel.gameObjects[1].image.toString());
         this.gamePanel.gameObjects[3].worldX = 22 * gamePanel.tileSize;
         this.gamePanel.gameObjects[3].worldY = 40 * gamePanel.tileSize;
+    }
+
+    public void setNPC(){
+        Entity oldMan = new NPCOldMan(gamePanel);
+        oldMan.worldX = 21 * gamePanel.tileSize;
+        oldMan.worldY = 21 * gamePanel.tileSize;
+        oldMan.setSpeed(1);
+        oldMan.setDirection(EntityDirection.DOWN); //Convert to enum as arguement
+        this.gamePanel.npcs.put(Entities.OLD_MAN, oldMan);
     }
 }

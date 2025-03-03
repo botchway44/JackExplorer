@@ -1,16 +1,18 @@
 package controller;
 
+import object.OBJ_Key;
 import utilities.GameState;
 import view.GamePanel;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class UIController {
     private GamePanel gamePanel;
     private Graphics2D graphics2D;
     Font font = new Font("Arial", Font.PLAIN, 20);
 
-//    BufferedImage keyImage;
+    BufferedImage keyImage;
 
     public boolean messageOn = false;
     public String message = "";
@@ -18,7 +20,7 @@ public class UIController {
 
     public UIController(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-//        this.keyImage = new OBJ_Key().image;
+        this.keyImage = new OBJ_Key().image;
     }
 
 
@@ -33,20 +35,20 @@ public class UIController {
             drawPausedScreen();
 
         }
-//        g2.drawImage(keyImage, gamePanel.tileSize / 2, gamePanel.tileSize / 2, gamePanel.tileSize / 2, gamePanel.tileSize / 2, null);
-//        g2.drawString("X ", 74, 65);
-//
-//        if (messageOn) {
-//            g2.setFont(g2.getFont().deriveFont(30F));
-//            g2.drawString(message, gamePanel.tileSize, gamePanel.tileSize * 5);
-//
-//            notificationCounter++;
-//            if (notificationCounter > 90) {
-//                messageOn = false;
-//                notificationCounter = 0;
-//
-//            }
-//        }
+        g2.drawImage(keyImage, gamePanel.tileSize / 2, gamePanel.tileSize / 2, gamePanel.tileSize / 2, gamePanel.tileSize / 2, null);
+        g2.drawString("X ", 74, 65);
+
+        if (messageOn) {
+            g2.setFont(g2.getFont().deriveFont(30F));
+            g2.drawString(message, gamePanel.tileSize, gamePanel.tileSize * 5);
+
+            notificationCounter++;
+            if (notificationCounter > 90) {
+                messageOn = false;
+                notificationCounter = 0;
+
+            }
+        }
 
     }
 

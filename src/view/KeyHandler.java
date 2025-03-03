@@ -1,6 +1,7 @@
 package view;
 
 import utilities.GameState;
+import utilities.KeyPressEvent;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -14,7 +15,6 @@ public class KeyHandler implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-        // TODO Auto-generated method stub
 
     }
 
@@ -24,7 +24,6 @@ public class KeyHandler implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        // TODO Auto-generated method stub
 
         int code = e.getKeyCode();
 
@@ -70,4 +69,27 @@ public class KeyHandler implements KeyListener {
     }
 
 
+    public void keyPressed(KeyPressEvent e) {
+        System.out.println("Called here : " + this.upPressed);
+
+        if (e == KeyPressEvent.UP) {
+
+            this.upPressed = true;
+            System.out.println("Direction here : " + this.upPressed);
+        } else if (e == KeyPressEvent.DOWN) {
+            this.downPressed = true;
+        } else if (e == KeyPressEvent.LEFT) {
+            this.leftPressed = true;
+        } else if (e == KeyPressEvent.RIGHT) {
+            this.rightPressed = true;
+        } else if (e == KeyPressEvent.PAUSE) {
+            //pause Game
+            if (this.gamePanel.gameState == GameState.PAUSED) {
+                this.gamePanel.gameState = GameState.PLAYING;
+            } else if (this.gamePanel.gameState == GameState.PLAYING) {
+                this.gamePanel.gameState = GameState.PAUSED;
+            }
+        }
+
+    }
 }

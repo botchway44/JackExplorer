@@ -1,17 +1,16 @@
 package view;
 
 import controller.UIController;
+import model.Entity;
 import model.Player;
 import object.SuperObject;
 import tile.CollisionChecker;
 import tile.TileManager;
-import utilities.AssetSetter;
-import utilities.GameState;
-import utilities.Sound;
-import utilities.SoundAssets;
+import utilities.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
 
 public class GamePanel extends JPanel implements Runnable {
 
@@ -58,6 +57,7 @@ public class GamePanel extends JPanel implements Runnable {
     //ENTITY AND OBJECT
     public Player player = new Player(this, this.keyH);
     public SuperObject[] gameObjects = new SuperObject[10];
+    public HashMap<Entities, Entity> npcs = new HashMap<Entities, Entity>();
 
     //GAME STATE
     public GameState gameState = GameState.PLAYING;
@@ -80,6 +80,7 @@ public class GamePanel extends JPanel implements Runnable {
     public void setUpGame() {
 
         this.assetSetter.setObject();
+        this.assetSetter.setNPC();
         this.playMusic(SoundAssets.BACKGROUND);
         this.gameState = GameState.PLAYING;
     }
@@ -133,6 +134,11 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (this.gameState == GameState.PLAYING) {
             player.update();
+
+            //Update NPCs as well
+            for (Entity npc : npcs.values()) {
+                npc.update();
+            }
         } else if (this.gameState == GameState.PAUSED) {
             //nothing for now
             // later show paused screen
@@ -150,6 +156,12 @@ public class GamePanel extends JPanel implements Runnable {
             if (gameObjects[i] != null) {
                 gameObjects[i].draw(g2, this);
             }
+        }
+
+        //Draw NPCs
+        for(Entity e : npcs.values()) {
+            e.draw(g2);
+
         }
 
         //PLAYER
@@ -172,5 +184,18 @@ public class GamePanel extends JPanel implements Runnable {
     public void playSoundEffect(SoundAssets key) {
         soundFx.setFile(key);
         soundFx.play();
+    }
+
+
+    public int getScreenWidth() {
+        return screenWidth;
+    }
+
+    public int getScreenHeight() {
+        return screenHeight;
+    }
+
+    public int getTileSize() {
+        return tileSize;
     }
 }

@@ -23,11 +23,12 @@ public class OBJ_Generic extends SuperObject {
 
 
     public void initialize(String filePath, int width, int height) {
-        
+
         try {
             image = UtilityTool.scaleImage(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream(filePath))), width, height);
         } catch (Exception e) {
             e.printStackTrace();
+
         }
     }
 }
