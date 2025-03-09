@@ -2,6 +2,7 @@ package model;
 
 import object.SuperObject;
 import utilities.*;
+import utilities.controller.PS5NewImplementation;
 import view.GamePanel;
 import view.KeyHandler;
 
@@ -16,7 +17,7 @@ public class Player extends Entity {
 
     GamePanel gp;
     public KeyHandler keyH; //Change back to private
-
+    public PS5NewImplementation psHandler;
     public final int screenX;
     public final int screenY;
 
@@ -72,31 +73,68 @@ public class Player extends Entity {
         }
     }
 
+    //check keyboard input
+    public void checkControllerDirections(){
+
+
+        if (this.gp.ps5Handler.upPressed ) {
+//			this.worldY -= this.speed;
+            this.direction = EntityDirection.UP;
+        }
+
+        if (this.gp.ps5Handler.downPressed) {
+//			this.worldY += this.speed;
+            this.direction = EntityDirection.DOWN;
+        }
+
+        if (this.gp.ps5Handler.leftPressed ) {
+//			this.worldX -= this.speed;
+            this.direction = EntityDirection.LEFT;
+        }
+
+        if (this.gp.ps5Handler.rightPressed) {
+//			this.worldX += this.speed;
+            this.direction = EntityDirection.RIGHT;
+        }
+
+    }
+
+    //check keyboard input
+    public void checkKeyboardDirections(){
+
+
+        if (this.keyH.upPressed) {
+//			this.worldY -= this.speed;
+            this.direction = EntityDirection.UP;
+        }
+
+        if (this.keyH.downPressed) {
+//			this.worldY += this.speed;
+            this.direction = EntityDirection.DOWN;
+        }
+
+        if (this.keyH.leftPressed) {
+//			this.worldX -= this.speed;
+            this.direction = EntityDirection.LEFT;
+        }
+
+        if (this.keyH.rightPressed) {
+//			this.worldX += this.speed;
+            this.direction = EntityDirection.RIGHT;
+        }
+
+    }
+
     @Override
     public void update() {
 
-        if (keyH.upPressed == true || keyH.downPressed == true || keyH.leftPressed == true || keyH.rightPressed == true) {
+        //optimize this check
+        if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed
+        || gp.ps5Handler.upPressed || gp.ps5Handler.downPressed || gp.ps5Handler.leftPressed || gp.ps5Handler.rightPressed
+        ) {
 
-
-            if (this.keyH.upPressed == true) {
-//			this.worldY -= this.speed;
-                this.direction = EntityDirection.UP;
-            }
-
-            if (this.keyH.downPressed == true) {
-//			this.worldY += this.speed;
-                this.direction = EntityDirection.DOWN;
-            }
-
-            if (this.keyH.leftPressed == true) {
-//			this.worldX -= this.speed;
-                this.direction = EntityDirection.LEFT;
-            }
-
-            if (this.keyH.rightPressed == true) {
-//			this.worldX += this.speed;
-                this.direction = EntityDirection.RIGHT;
-            }
+            this.checkKeyboardDirections();
+            this.checkControllerDirections();
 
             //CHECK TILE COLLISION
             collisionOn = false;

@@ -7,6 +7,7 @@ import object.SuperObject;
 import tile.CollisionChecker;
 import tile.TileManager;
 import utilities.*;
+import utilities.controller.PS5NewImplementation;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,6 +47,7 @@ public class GamePanel extends JPanel implements Runnable {
     //SYSTEM
     public final TileManager tileManager = new TileManager(this);
     final KeyHandler keyH = new KeyHandler(this);
+    public final PS5NewImplementation ps5Handler = new PS5NewImplementation(this);
     Sound music = new Sound();
     Sound soundFx = new Sound();
 
@@ -69,16 +71,17 @@ public class GamePanel extends JPanel implements Runnable {
 
 
     public GamePanel() {
+        ps5Handler.start(); // new PS5NewImplementation().start(); registers controller input listener
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
+
         this.setFocusable(true);
     }
 
 
     public void setUpGame() {
-
         this.assetSetter.setObject();
         this.assetSetter.setNPC();
         this.playMusic(SoundAssets.BACKGROUND);
@@ -184,6 +187,15 @@ public class GamePanel extends JPanel implements Runnable {
     public void playSoundEffect(SoundAssets key) {
         soundFx.setFile(key);
         soundFx.play();
+    }
+
+
+    public void switchGamePauseState(){
+        if (this.gameState == GameState.PAUSED) {
+            this.gameState = GameState.PLAYING;
+        } else if (this.gameState == GameState.PLAYING) {
+            this.gameState = GameState.PAUSED;
+        }
     }
 
 

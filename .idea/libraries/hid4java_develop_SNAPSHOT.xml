@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="hid4java-develop-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/hid4java-develop-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

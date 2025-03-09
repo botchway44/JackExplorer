@@ -36,5 +36,17 @@
       </library>
     </orderEntry>
     <orderEntry type="library" scope="TEST" name="mockito.core" level="project" />
+    <orderEntry type="library" name="sdl2gdx-1.0.5" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/Jamepad.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="hid4java-develop-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="jna-5.16.0" level="project" />
   </component>
 </module>
