@@ -1,5 +1,4 @@
-package utilities.controller;
-import utilities.controller.ControllerUnpluggedException;
+package utilities.controller.test;
 
 import java.io.Serializable;
 

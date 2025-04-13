@@ -1,4 +1,4 @@
-package utilities.controller;
+package utilities.controller.test;
 
 import org.libsdl.SDL;
 

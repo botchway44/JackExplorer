@@ -1,10 +1,8 @@
-package utilities.controller;
+package utilities.controller.test;
 
 
 import org.hid4java.*;
 import org.hid4java.event.HidServicesEvent;
-
-import java.util.Scanner;
 
 public class PS5ModifiedController implements HidServicesListener {
     private static final int VENDOR_ID = 0x054C;   // Sony

@@ -1,7 +1,6 @@
-package utilities.controller;
+package utilities.controller.test;
 import org.hid4java.*;
 
-import org.hid4java.*;
 import org.hid4java.event.HidServicesEvent;
 
 import java.util.Scanner;

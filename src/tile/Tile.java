@@ -3,7 +3,7 @@ package tile;
 import java.awt.image.BufferedImage;
 
 public class Tile {
-
+	private int tileNumber;
 	public String name;
 	public BufferedImage image;
 	public boolean collision  = false;
@@ -22,6 +22,14 @@ public class Tile {
 
 	public void setImage(BufferedImage image) {
 		this.image = image;
+	}
+
+	public int getTileNumber() {
+		return tileNumber;
+	}
+
+	public void setTileNumber(int tileNumber) {
+		this.tileNumber = tileNumber;
 	}
 
 	public boolean isCollision() {

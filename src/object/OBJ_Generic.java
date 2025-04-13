@@ -1,21 +1,23 @@
 package object;
 
+import model.Entity;
 import utilities.UtilityTool;
+import view.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.util.Objects;
 
-public class OBJ_Generic extends SuperObject {
+public class OBJ_Generic extends Entity {
 
-    public OBJ_Generic(String filePath, String name, Boolean collision) {
-
+    public OBJ_Generic(GamePanel gamePanel, String filePath, String name, Boolean collision) {
+        super(gamePanel);
         this.name = name;
         this.collision = collision;
         this.initialize(filePath, 16, 16);
     }
 
-    public OBJ_Generic(String filePath, String name, Boolean collision, int width, int height) {
-
+    public OBJ_Generic(GamePanel gamePanel, String filePath, String name, Boolean collision, int width, int height) {
+        super(gamePanel);
         this.collision = collision;
         this.name = name;
         this.initialize(filePath, width, height);

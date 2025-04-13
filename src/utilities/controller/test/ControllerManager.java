@@ -1,7 +1,6 @@
-package utilities.controller;
+package utilities.controller.test;
 
 import org.libsdl.SDL;
-import utilities.controller.ControllerIndex;
 
 import java.io.IOException;
 import java.io.InputStream;

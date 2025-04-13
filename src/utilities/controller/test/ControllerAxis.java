@@ -1,4 +1,4 @@
-package utilities.controller;
+package utilities.controller.test;
 
 /**
  * This is an enumerated type for controller axes.

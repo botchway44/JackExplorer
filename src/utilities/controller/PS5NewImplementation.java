@@ -3,6 +3,7 @@ package utilities.controller;
 
 import org.hid4java.*;
         import org.hid4java.event.HidServicesEvent;
+import utilities.GameState;
 import view.GamePanel;
 
 public class PS5NewImplementation implements HidServicesListener {
@@ -21,6 +22,7 @@ public class PS5NewImplementation implements HidServicesListener {
     //Pressing the options key triggers the pause multiple times.
     //This will allow us to delay the triggers
     private int pauseCounter = 0;
+    private int maxCounter = 10;
 
     public PS5NewImplementation(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
@@ -57,7 +59,7 @@ public class PS5NewImplementation implements HidServicesListener {
                     parseInput(data);
                 }
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(11);
                 } catch (InterruptedException e) {
                     break;
                 }
@@ -146,14 +148,12 @@ public class PS5NewImplementation implements HidServicesListener {
 //            System.out.println("------ Short Bluetooth Report ------");
 //            System.out.printf("Left Stick: (%.2f, %.2f)%n", leftX, leftY);
 //            System.out.printf("Right Stick: (%.2f, %.2f)%n", rightX, rightY);
+
             if (!dpadDir.equals("Neutral")) {
                 System.out.println("D-pad: " + dpadDir);
             }
 
-            parseDirectionalInput(dpadDir);
-
             if (square) System.out.println("Square pressed");
-            if (cross) System.out.println("Cross pressed");
             if (circle) System.out.println("Circle pressed");
             if (triangle) System.out.println("Triangle pressed");
             if (l1) System.out.println("L1 pressed");
@@ -161,23 +161,90 @@ public class PS5NewImplementation implements HidServicesListener {
             if (l2Button) System.out.println("L2 button pressed");
             if (r2Button) System.out.println("R2 button pressed");
             if (create) System.out.println("Create pressed");
-
-
-            if (options) {
-                pauseCounter++;
-
-                System.out.println("Options pressed");
-
-                if (pauseCounter == 10) {
-                    //move game to paused state
-                    this.gamePanel.switchGamePauseState();
-
-                    pauseCounter = 0;
-                }
-            }
             if (l3) System.out.println("L3 pressed");
             if (r3) System.out.println("R3 pressed");
-        } else if (reportId == 0x31 && data.length >= 78) {
+
+            if (gamePanel.gameState == GameState.TITLE_SCREEN){
+                if (cross){
+                    if (gamePanel.uiController.commandNumber == 0) {
+                        this.gamePanel.gameState = GameState.PLAYING;
+                    }
+                }
+
+            }
+            else if (gamePanel.gameState == GameState.PLAYING) {
+
+                if (options) {
+                    pauseCounter++;
+
+                    System.out.println("Options pressed");
+
+                    if (pauseCounter == maxCounter) {
+                        //move game to paused state
+                        this.gamePanel.switchGamePauseState();
+                        pauseCounter = 0;
+                    }
+                }
+                if(create){
+                         pauseCounter++;
+
+                        System.out.println("Create pressed");
+
+                        if (pauseCounter == maxCounter) {
+                            //move game to paused state
+                            this.gamePanel.switchGameCharacterState();
+                            pauseCounter = 0;
+                        }
+
+                }
+
+                if(cross){
+                    gamePanel.keyH.shootKeyPressed = true;
+                }else {
+                    gamePanel.keyH.shootKeyPressed = false;
+                }
+
+            }
+            else if (gamePanel.gameState == GameState.PAUSED) {
+                if (options) {
+                    pauseCounter++;
+
+                    System.out.println("Options pressed");
+
+                    if (pauseCounter == maxCounter) {
+                        //move game to paused state
+                        this.gamePanel.switchGamePauseState();
+                        pauseCounter = 0;
+                    }
+                }
+            }
+            else if (gamePanel.gameState == GameState.DIALOG_STATE) {
+                if(cross) this.gamePanel.gameState = GameState.PLAYING;
+            }
+            else if (gamePanel.gameState == GameState.CHARACTER_STATE) {
+
+                if(cross) {
+                    gamePanel.player.selectItem();
+                };
+
+                if(create){
+                    pauseCounter++;
+
+                    System.out.println("Create pressed");
+
+                    if (pauseCounter == maxCounter) {
+                        //move game to paused state
+                        this.gamePanel.switchGameCharacterState();
+                        pauseCounter = 0;
+                    }
+
+                }
+            }
+
+            parseDirectionalInput(dpadDir);
+
+        }
+        else if (reportId == 0x31 && data.length >= 78) {
             // Extended Bluetooth report with motion and touchpad data
             float leftX = ((data[1] & 0xFF) - 128) / 127.0f;
             float leftY = ((data[2] & 0xFF) - 128) / 127.0f;
@@ -213,6 +280,9 @@ public class PS5NewImplementation implements HidServicesListener {
     }
 
     private void parseDirectionalInput(String dpadDir) {
+
+        if(gamePanel.gameState == GameState.PLAYING){
+
         switch (dpadDir) {
             case "Neutral" -> {
                 //release any pressed key
@@ -220,13 +290,77 @@ public class PS5NewImplementation implements HidServicesListener {
                 this.downPressed = false;
                 this.leftPressed = false;
                 this.rightPressed = false;
-
             }
             case "N" -> this.upPressed = true;
             case "S" -> this.downPressed = true;
             case "W" -> this.leftPressed = true;
             case "E" -> this.rightPressed = true;
         }
+        
+        } else if (gamePanel.gameState == GameState.PAUSED) {
+            
+            
+        } else if (gamePanel.gameState == GameState.TITLE_SCREEN) {
+            if(dpadDir != null){
+
+                    pauseCounter++;
+
+                    if (pauseCounter == maxCounter) {
+                        //move game to paused state
+
+                        switch (dpadDir) {
+                            case "Neutral" -> {
+                                //release any pressed key
+                                this.upPressed = false;
+                                this.downPressed = false;
+                                this.leftPressed = false;
+                                this.rightPressed = false;
+                            }
+                            case "N" ->  gamePanel.uiController.previousCommandNumber();
+                            case "S" -> gamePanel.uiController.nextCommandNumber();
+                        }
+
+
+                        pauseCounter = 0;
+                    }
+
+            }
+
+        } else if (gamePanel.gameState == GameState.CHARACTER_STATE) {
+
+            if(dpadDir != null){
+
+                pauseCounter++;
+
+                if (pauseCounter == maxCounter) {
+                    //move game to paused state
+
+                    switch (dpadDir) {
+                        case "Neutral" -> {
+                            //release any pressed key
+                        }
+                        case "N" -> {
+                            if (gamePanel.uiController.slotRow > 0) gamePanel.uiController.slotRow--;
+                        }
+                        case "S" -> {
+                            if ( gamePanel.uiController.slotRow <3)  gamePanel.uiController.slotRow++;
+                        }
+                        case "W" -> {
+                            if (gamePanel.uiController.slotCol > 0) gamePanel.uiController.slotCol--;
+                        }
+                        case "E" -> {
+                            if ( gamePanel.uiController.slotCol <4) gamePanel.uiController.slotCol++;
+                        }
+                    }
+
+
+
+                    pauseCounter = 0;
+                }
+
+            }
+
+            }
     }
 
     private void shutdown() {
@@ -258,5 +392,27 @@ public class PS5NewImplementation implements HidServicesListener {
     public void hidDataReceived(HidServicesEvent hidServicesEvent) {
 
     }
+
+    private void setHapticFeedback(byte leftMotorIntensity, byte rightMotorIntensity) {
+        // Construct the control report
+        byte[] outputReport = new byte[64]; // Control reports are typically 64 bytes
+        outputReport[0] = 0x05; // Report ID for haptics (example; may vary)
+        outputReport[1] = (byte) 0xFF; // Command type (example; may vary)
+        outputReport[2] = 0x00; // Reserved
+        outputReport[3] = leftMotorIntensity;  // Left motor intensity (0x00 to 0xFF)
+        outputReport[4] = rightMotorIntensity; // Right motor intensity (0x00 to 0xFF)
+        outputReport[5] = 0x00; // Reserved
+        outputReport[6] = 0x00; // Reserved
+        outputReport[7] = 0x01; // Enable adaptive trigger effect
+        outputReport[8] = 0x40; // Set trigger stiffness level
+
+
+        // Send the control report to the controller
+        int bytesWritten = controller.write(outputReport, outputReport.length, (byte) 0);
+        if (bytesWritten < 0) {
+            System.err.println("Failed to send haptic feedback command");
+        }
+    }
+
 
 }

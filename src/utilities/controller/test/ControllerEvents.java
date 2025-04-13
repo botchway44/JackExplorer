@@ -2,9 +2,6 @@ package utilities.controller.test;
 
 
 
-import utilities.controller.ControllerIndex;
-import utilities.controller.ControllerManager;
-
 import java.awt.Component;
 import java.awt.Dimension;
 import javax.swing.JFrame;

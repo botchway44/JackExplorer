@@ -75,7 +75,8 @@ public class CollisionChecker {
                 tileNum1 = gamePanel.tileManager.mapTileNum[entityRightCol][entityTopRow];
                 tileNum2 = gamePanel.tileManager.mapTileNum[entityRightCol][entityBottomRow];
 
-                if (gamePanel.tileManager.tile[tileNum1].collision == true || gamePanel.tileManager.tile[tileNum2].collision == true) {
+                // tile should be lessthan the size of the array
+                if (gamePanel.tileManager.tile[tileNum1].collision || gamePanel.tileManager.tile[tileNum2].collision) {
                     entity.collisionOn = true;
                 }
 
@@ -250,6 +251,8 @@ public class CollisionChecker {
         return index;
     }
 
+
+    //not used now
     public Entities checkEntityCollision(Entity entity, HashMap<Entities, Entity> targets) {
         for (Entities e : targets.keySet()) {
                  //Get entity's solid position
@@ -267,6 +270,7 @@ public class CollisionChecker {
                         entity.solidArea.y -= entity.speed;
                         if (entity.solidArea.intersects(target.solidArea)) {
                             System.out.println("Collision Detected Up");
+                            entity.collisionOn = true;
 
                                return e;
 
@@ -276,6 +280,8 @@ public class CollisionChecker {
                         entity.solidArea.y += entity.speed;
                         if (entity.solidArea.intersects(target.solidArea)) {
                             System.out.println("Collision Detected Down");
+                            entity.collisionOn = true;
+
                             return e;
                         }
                         break;
@@ -283,13 +289,17 @@ public class CollisionChecker {
                         entity.solidArea.x -= entity.speed;
                         if (entity.solidArea.intersects(target.solidArea)) {
                             System.out.println("Collision Detected Left");
-                                return e;
+                            entity.collisionOn = true;
+
+                            return e;
                          }
                         break;
                     case RIGHT:
                         entity.solidArea.x += entity.speed;
                         if (entity.solidArea.intersects(target.solidArea)) {
                             System.out.println("Collision Detected Right");
+                            entity.collisionOn = true;
+
                             return e;
                          }
                         break;
@@ -305,8 +315,84 @@ public class CollisionChecker {
         return null;
     }
 
+    //check for NPC or monsters
+    public int checkEntityCollision(Entity entity,Entity[] targets) {
+        int index = -999;
 
-    public void checkPlayerCollision(Entity entity) {
+        for (int i = 0; i < targets.length; i++) {
+            if(targets[i] == null) continue;
+            //Get entity's solid position
+            entity.solidArea.x = entity.worldX + entity.solidArea.x;
+            entity.solidArea.y = entity.worldY + entity.solidArea.y;
+
+            Entity target = targets[i];
+
+            // get the objects solid area position
+            target.solidArea.x = target.worldX + target.solidArea.x;
+            target.solidArea.y = target.worldY + target.solidArea.y;
+
+            switch (entity.direction) {
+                case UP:
+                    entity.solidArea.y -= entity.speed;
+//                    if (entity.solidArea.intersects(target.solidArea)) {
+//                        System.out.println("Collision Detected Up");
+//                        entity.collisionOn = true;
+//                        return i;
+//
+//                    }
+                    break;
+                case DOWN:
+                    entity.solidArea.y += entity.speed;
+//                    if (entity.solidArea.intersects(target.solidArea)) {
+//                        System.out.println("Collision Detected Down");
+//                        entity.collisionOn = true;
+//
+//                        return i;
+//                    }
+                    break;
+                case LEFT:
+                    entity.solidArea.x -= entity.speed;
+//                    if (entity.solidArea.intersects(target.solidArea)) {
+//                        System.out.println("Collision Detected Left");
+//                        entity.collisionOn = true;
+//
+//                        return i;
+//                    }
+                    break;
+                case RIGHT:
+                    entity.solidArea.x += entity.speed;
+//                    if (entity.solidArea.intersects(target.solidArea)) {
+//                        System.out.println("Collision Detected Right");
+//                        entity.collisionOn = true;
+//
+//                        return i;
+//                    }
+                    break;
+
+            }
+
+            if (entity.solidArea.intersects(target.solidArea)) {
+                if(target != entity){
+                    entity.collisionOn = true;
+                    index = i;
+                }
+            }
+
+            entity.solidArea.x = entity.solidAreaDefaultX;
+            entity.solidArea.y = entity.solidAreaDefaultY;
+            target.solidArea.x = target.solidAreaDefaultX;
+            target.solidArea.y = target.solidAreaDefaultY;
+        }
+
+        return index;
+    }
+
+
+
+    public boolean checkPlayerCollision(Entity entity) {
+
+        boolean contactPlayer = false;
+
              //Get entity's solid position
             entity.solidArea.x = entity.worldX + entity.solidArea.x;
             entity.solidArea.y = entity.worldY + entity.solidArea.y;
@@ -320,40 +406,47 @@ public class CollisionChecker {
             switch (entity.direction) {
                 case UP:
                     entity.solidArea.y -= entity.speed;
-                    if (entity.solidArea.intersects(target.solidArea)) {
-                        System.out.println("Collision Detected Up");
-
-
-                    }
+//                    if (entity.solidArea.intersects(target.solidArea)) {
+//                        System.out.println("Collision Detected Up");
+//                        entity.collisionOn = true;
+//
+//                    }
                     break;
                 case DOWN:
                     entity.solidArea.y += entity.speed;
-                    if (entity.solidArea.intersects(target.solidArea)) {
-                        System.out.println("Collision Detected Down");
-
-                    }
+//                    if (entity.solidArea.intersects(target.solidArea)) {
+//                        System.out.println("Collision Detected Down");
+//                        entity.collisionOn = true;
+//                    }
                     break;
                 case LEFT:
                     entity.solidArea.x -= entity.speed;
-                    if (entity.solidArea.intersects(target.solidArea)) {
-                        System.out.println("Collision Detected Left");
-
-                    }
+//                    if (entity.solidArea.intersects(target.solidArea)) {
+//                        System.out.println("Collision Detected Left");
+//                        entity.collisionOn = true;
+//                    }
                     break;
                 case RIGHT:
                     entity.solidArea.x += entity.speed;
-                    if (entity.solidArea.intersects(target.solidArea)) {
-                        System.out.println("Collision Detected Right");
-
-                    }
+//                    if (entity.solidArea.intersects(target.solidArea)) {
+//                        System.out.println("Collision Detected Right");
+//                        entity.collisionOn = true;
+//                    }
                     break;
 
             }
+
+        if (entity.solidArea.intersects(target.solidArea)) {
+            entity.collisionOn = true;
+            contactPlayer = true;
+        }
 
             entity.solidArea.x = entity.solidAreaDefaultX;
             entity.solidArea.y = entity.solidAreaDefaultY;
             target.solidArea.x = target.solidAreaDefaultX;
             target.solidArea.y = target.solidAreaDefaultY;
+
+            return contactPlayer;
     }
 }
 

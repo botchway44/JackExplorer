@@ -3,14 +3,11 @@ package main;
 
 //import utilities.controller.test.ControllerEvents;
 
-import com.studiohartman.jamepad.ControllerManager;
-import utilities.controller.PS5ControllerManager;
-import utilities.controller.PS5ModifiedController;
-import utilities.controller.PS5NewImplementation;
-import utilities.controller.test.ControllerEvents;
 import view.GamePanel;
+import view.TileEditor;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class MainDriver {
 	
@@ -25,43 +22,34 @@ public class MainDriver {
 		System.setProperty("org.lwjgl.librarypath",
 				"/opt/homebrew/lib/"); // ARM path
 
-//		PS5ControllerManager ps5ControllerDriver = new PS5ControllerManager();
-//		ps5ControllerDriver.start();
-
-
-		// Check if a button is currently pressed
-
-//		ControllerEvents ctrl = new ControllerEvents();
-//		ctrl.run();
-
-
-
-// "/usr/local/lib/" for Intel Homebrew
-//		ControllerManager controllers = new ControllerManager();
-//
-//
-//		controllers.initSDLGamepad();
-
-
 
 		JFrame window  = new JFrame();
+		window.setSize(900,900);
 		 window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		 window.setResizable(false);
-		 window.setTitle("Jack Adventure");
+		 window.setResizable(true);
+		 window.setTitle("Tank Shooter");
 
 
-		 GamePanel gamePanel = new GamePanel();
+		GamePanel gamePanel = new GamePanel();
+		window.add(gamePanel);
 
-		 window.add(gamePanel);
 
-		 window.pack();
+
+//		TileEditor tleditor = new TileEditor();
+//		JScrollPane scrPane = new JScrollPane(tleditor);
+//		window.add(scrPane, BorderLayout.CENTER);
+//		window.add(new Button("Hello"), BorderLayout.EAST);
+
+
+
+		window.pack();
+//		tleditor.startGameThread();
 
 		 window.setLocationRelativeTo(null);
 		 window.setVisible(true);
 
 		 gamePanel.setUpGame();
 		 gamePanel.startGameThread();
-
 	}
 	
 }

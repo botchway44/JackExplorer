@@ -4,5 +4,6 @@ public enum EntityDirection {
     LEFT,
     RIGHT,
     UP,
-    DOWN
+    DOWN,
+    ALL
 }

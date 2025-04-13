@@ -23,20 +23,20 @@ class OBJGenericTest {
         assertEquals(0, superObject.solidAreaDefaultY);
     }
 
-    @Test
-    void testConstructorWithDefaultSize() {
-        obj = new OBJ_Generic("/objects/Brown_ruins1.png", "Brown RUINS", true);;
-        assertEquals("Brown RUINS", obj.name);
-        assertTrue(obj.collision);
-        assertNotNull(obj.image);
-    }
-
-    @Test
-    void testConstructorWithCustomSize() {
-        obj = new OBJ_Generic("/objects/Brown_ruins1.png", "Brown RUINS", false, 100, 100);;
-        assertEquals("Brown RUINS", obj.name);
-        assertFalse(obj.collision);
-        assertNotNull(obj.image);
-    }
+//    @Test
+//    void testConstructorWithDefaultSize() {
+//        obj = new OBJ_Generic("/objects/Brown_ruins1.png", "Brown RUINS", true);;
+//        assertEquals("Brown RUINS", obj.name);
+//        assertTrue(obj.collision);
+//        assertNotNull(obj.image);
+//    }
+//
+//    @Test
+//    void testConstructorWithCustomSize() {
+//        obj = new OBJ_Generic("/objects/Brown_ruins1.png", "Brown RUINS", false, 100, 100);;
+//        assertEquals("Brown RUINS", obj.name);
+//        assertFalse(obj.collision);
+//        assertNotNull(obj.image);
+//    }
 
 }

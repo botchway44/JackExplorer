@@ -1,4 +1,4 @@
-package utilities.controller;
+package utilities.controller.test;
 
 /**
  * Signals that you are trying to access a gamepad that is not plugged in.

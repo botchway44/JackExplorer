@@ -19,6 +19,13 @@ public class Sound {
         soundUrlMap.put(SoundAssets.POWERUP, getClass().getResource("/sound/powerup.wav"));
         soundUrlMap.put(SoundAssets.UNLOCK, getClass().getResource("/sound/unlock.wav"));
         soundUrlMap.put(SoundAssets.FANFARE, getClass().getResource("/sound/fanfare.wav"));
+        soundUrlMap.put(SoundAssets.HIT_MONSTER, getClass().getResource("/sound/hitmonster.wav"));
+        soundUrlMap.put(SoundAssets.RECEIVE_DAMAGE, getClass().getResource("/sound/receivedamage.wav"));
+        soundUrlMap.put(SoundAssets.LEVEL_UP, getClass().getResource("/sound/levelup.wav"));
+        soundUrlMap.put(SoundAssets.CURSOR, getClass().getResource("/sound/cursor.wav"));
+        soundUrlMap.put(SoundAssets.SHOOT, getClass().getResource("/sound/shoot.wav"));
+
+
 
     }
 
