@@ -15,322 +15,234 @@ import java.awt.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * GamePanel is the main drawing surface and game loop host for the Tank Shooter application.
+ * <p>
+ * It manages screen and world settings, input handling, tile and entity rendering,
+ * and the game update cycle (running at a fixed FPS).
+ * </p>
+ *
+ * @author Emmanuel Botwe
+ */
 public class GamePanel extends JPanel implements Runnable {
 
-    //SCREEN SETTING
+    // SCREEN SETTINGS
+    private final int originalTileSize = 16; // 16x16 tile
+    private final int scale = 3;
+    /** Size of a single tile in pixels (scaled). */
+    public final int tileSize = originalTileSize * scale;
 
-    final int originalTileSize = 16; //16x16 tile
+    /** Number of tiles horizontally on screen. */
+    public final int maxScreenCol = 17;
+    /** Number of tiles vertically on screen. */
+    public final int maxScreenRow = 20;
 
-    final int scale = 3;
+    /** Width of the game view in pixels. */
+    public final int screenWidth = tileSize * maxScreenRow;
+    /** Height of the game view in pixels. */
+    public final int screenHeight = tileSize * maxScreenCol;
 
-    public final int tileSize = originalTileSize * scale; // 16*3 = 48x48 tile
-
-    public final int maxScreenCol = 12;
-    public final int maxScreenRow = 16;
-
-    public final int screenWidth = tileSize * maxScreenRow; //768 pixels
-
-    public final int screenHeight = tileSize * maxScreenCol; // 576 pixels
-
-
-    //WORLD SETTINGS
-    public final int maxWorldCol = 50;
-    public final int maxWorldRow = 50;
-
-    //STILL NOT USING THIS, WILL COME BACK TO IT
+    // WORLD SETTINGS
+    /** Number of columns in the world grid. */
+    public int maxWorldCol = 50;
+    /** Number of rows in the world grid. */
+    public int maxWorldRow = 50;
+    /** Width of the entire world in pixels. */
     public final int worldWidth = tileSize * maxWorldCol;
-    public final int worldheight = tileSize * maxWorldRow;
+    /** Height of the entire world in pixels. */
+    public final int worldHeight = tileSize * maxWorldRow;
 
+    // TARGET FRAMES PER SECOND
+    private int FPS = 30;
 
-    //FPS
-    int FPS = 30;
-
-    //EVENTS
+    // EVENT HANDLING
     public EventHandler eventHandler;
 
-    //SYSTEM
+    // SYSTEM COMPONENTS
     public final TileManager tileManager = new TileManager(this, 1);
     public final KeyHandler keyH = new KeyHandler(this);
     public final PS5NewImplementation ps5Handler = new PS5NewImplementation(this);
-    Sound music = new Sound();
-    Sound soundFx = new Sound();
-
+    private Sound music = new Sound();
+    private Sound soundFx = new Sound();
     public final CollisionChecker collisionChecker = new CollisionChecker(this);
     public AssetSetter assetSetter = new AssetSetter(this);
     public UIController uiController = new UIController(this);
-    Thread gameThread;
+    private Thread gameThread;
 
-    //ENTITY AND OBJECT
+    // GAME ENTITIES
     public Player player = new Player(this, this.keyH);
     public Entity[] gameObjects = new Entity[10];
     public Entity[] npcs = new Entity[10];
     public Entity[] monsters = new Entity[10];
-
     public ArrayList<Entity> projectileList = new ArrayList<>();
-    ArrayList<Entity> entityList = new ArrayList<>();
+    private ArrayList<Entity> entityList = new ArrayList<>();
 
-    //GAME STATE
+    // GAME STATE
     public GameState gameState = GameState.TITLE_SCREEN;
 
-    //set Default Player Position
-    int playerX = 100;
-    int playerY = 100;
-    int playerSpeed = 4;
-
-
+    /**
+     * Constructs the GamePanel, sets up input handlers and display properties.
+     */
     public GamePanel() {
-        ps5Handler.start(); // new PS5NewImplementation().start(); registers controller input listener
-        this.setPreferredSize(new Dimension(screenWidth, screenHeight));
-        this.setBackground(Color.black);
-        this.setDoubleBuffered(true);
-        this.addKeyListener(keyH);
-
-        this.setFocusable(true);
-
-        this.eventHandler = new EventHandler(this);
+        // Initialize controller input on PS5 handler
+        ps5Handler.start();
+        setPreferredSize(new Dimension(screenWidth, screenHeight));
+        setBackground(Color.BLACK);
+        setDoubleBuffered(true);
+        addKeyListener(keyH);
+        setFocusable(true);
+        eventHandler = new EventHandler(this);
     }
 
-
+    /**
+     * Prepares game assets and entities before starting the game loop.
+     */
     public void setUpGame() {
-        this.assetSetter.setObject();
-        this.assetSetter.setNPC();
-        this.assetSetter.setMonsters();
-
-//        this.playMusic(SoundAssets.BACKGROUND);
-        this.gameState = GameState.TITLE_SCREEN;
+        assetSetter.setObject();
+        assetSetter.setNPC();
+        assetSetter.setMonsters();
+        playMusic(SoundAssets.TITLE_SCREEN);
+        gameState = GameState.TITLE_SCREEN;
     }
 
+    /**
+     * Starts the main game thread, which runs the update-render loop.
+     */
     public void startGameThread() {
-        this.gameThread = new Thread(this);
-        this.gameThread.start();
+        gameThread = new Thread(this);
+        gameThread.start();
     }
 
-
+    /**
+     * Main game loop: updates game state at fixed FPS and repaints.
+     */
     @Override
     public void run() {
-
-        long oneSecond = 1000000000;
-
-
-        double drawInterval = (double) oneSecond / FPS; //0.01666 seconds
+        long oneSecond = 1_000_000_000L;
+        double drawInterval = (double) oneSecond / FPS;
         double nextDrawTime = System.nanoTime() + drawInterval;
 
-        while (this.gameThread != null) {
-            //System.out.println("The game loop is running");
-
-
-            // Update information about the character
-            this.update();
-
-            // Draw the screen with the updated information
+        while (gameThread != null) {
+            update();
             repaint();
-
             try {
-
-                double remainingTime = nextDrawTime - System.nanoTime();
-                remainingTime = remainingTime / oneSecond;
-
-                if (remainingTime < 0) {
-                    remainingTime = 0;
-                }
-
-                Thread.sleep((long) remainingTime);
-
+                double remaining = (nextDrawTime - System.nanoTime()) / oneSecond;
+                if (remaining < 0) remaining = 0;
+                Thread.sleep((long) (remaining * 1000));
                 nextDrawTime += drawInterval;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
-
+    /**
+     * Updates game logic based on current state (playing, paused, etc.).
+     */
     public void update() {
-
-        if (this.gameState == GameState.PLAYING) {
+        if (gameState == GameState.PLAYING) {
             player.update();
-
-            //Update NPCs as well
-            for (Entity npc : npcs) {
-                if(npc != null)  npc.update();
-            }
-
-            //Update Monsters as well
+            Arrays.stream(npcs).filter(Objects::nonNull).forEach(Entity::update);
             for (int i = 0; i < monsters.length; i++) {
-
-                if(monsters[i] != null ) {
-                    if(monsters[i].alive ){
-                        monsters[i].update();
-                    }
-
-                    if (!monsters[i].alive) {
-                        monsters[i]  = null;
-                    }
+                Entity m = monsters[i];
+                if (m != null) {
+                    if (m.alive) m.update();
+                    else monsters[i] = null;
                 }
             }
-
-
-            //Update Projectiles
             for (int i = 0; i < projectileList.size(); i++) {
-
-                if(projectileList.get(i) != null ) {
-                    if(projectileList.get(i).alive ){
-                        projectileList.get(i).update();
-                    }
-
-                    if (!projectileList.get(i).alive) {
-                        projectileList.remove(i);
-                    }
-                }
+                Entity p = projectileList.get(i);
+                if (p.alive) p.update(); else projectileList.remove(i);
             }
-//            projectileList.clear();
-//            projectileList.addAll(entitiesToUse);
-
-
-        } else if (this.gameState == GameState.PAUSED) {
-            //nothing for now
-            // later show paused screen
+        } else if (gameState == GameState.PAUSED || gameState == GameState.CHARACTER_STATE) {
+            if (!music.isPlaying()) playMusic(SoundAssets.PAUSED);
         }
     }
 
-
-    public void paintComponent(Graphics g) {
+    /**
+     * Renders the game: title screen, tiles, entities, and UI overlays.
+     *
+     * @param g the Graphics context to paint to
+     */
+    @Override
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-
-        long drawStart = System.nanoTime();
-
-        //DRAW TITLE SCREEN
-        if (this.gameState == GameState.TITLE_SCREEN) {
-                uiController.draw(g2);
-        } else {
-
-
-            tileManager.draw(g2);
-
-            entityList.add(player);
-
-//            entityList.addAll(npcs);
-            for (Entity e : npcs) {
-                if (e != null) {
-                    entityList.add(e);
-                }
-            }
-            for (Entity e : gameObjects) {
-                if (e != null) {
-                    entityList.add(e);
-                }
-            }
-
-            for (Entity e : monsters) {
-                if (e != null) {
-                    entityList.add(e);
-                }
-            }
-
-            //projects
-            for (Entity e : projectileList) {
-                if (e != null) {
-                    entityList.add(e);
-                }
-            }
-
-            //Collections Sort
-            entityList.sort(Comparator.comparingInt(e -> e.worldY));
-
-            for(int i = 0; i < entityList.size(); i++) {
-                entityList.get(i).draw(g2);
-            }
-
-            entityList.clear();
-//
-//            for (int i = 0; i < gameObjects.length; i++) {
-//                if (gameObjects[i] != null) {
-//                    gameObjects[i].draw(g2, this);
-//                }
-//            }
-//
-//            //Draw NPCs
-//            for (Entity e : npcs.values()) {
-//                e.draw(g2);
-//
-//            }
-//
-//            //PLAYER
-//            player.draw(g2);
-
-            //UI
+        long start = System.nanoTime();
+        if (gameState == GameState.TITLE_SCREEN) {
             uiController.draw(g2);
-
+        } else {
+            tileManager.draw(g2);
+            entityList.add(player);
+            Collections.addAll(entityList, npcs);
+            Collections.addAll(entityList, gameObjects);
+            Collections.addAll(entityList, monsters);
+            entityList.addAll(projectileList);
+            entityList.removeIf(Objects::isNull);
+            entityList.sort(Comparator.comparingInt(e -> e.worldY));
+            entityList.forEach(e -> e.draw(g2));
+            entityList.clear();
+            uiController.draw(g2);
         }
-
-        if(keyH.showDebug){
-            g2.setFont(g2.getFont().deriveFont( 20F));
-            long drawEnd = System.nanoTime();
-            long passed = drawEnd - drawStart;
-            g2.setColor(Color.white);
-            System.out.println("Draw Time "+ passed + " seconds");
-
-            int x = 10;
-            int y = 400;
-            int lineHeight = 20;
-
-            g2.drawString("WorldX " + player.worldX, x,y);
-            y += lineHeight;
-            g2.drawString("WorldY " + player.worldY, x,y);
-            y += lineHeight;
-            g2.drawString("Col " + (player.worldX + player.solidArea.x)/tileSize, x,y);
-            y += lineHeight;
-
-            g2.drawString("Row " + (player.worldY + player.solidArea.x)/tileSize, x,y);
-            y += lineHeight;
-
-            g2.drawString("Draw Time "+ passed + " seconds", x, y);
+        if (keyH.showDebug) {
+            g2.setFont(g2.getFont().deriveFont(20f));
+            long passed = System.nanoTime() - start;
+            g2.setColor(Color.WHITE);
+            g2.drawString("Draw Time " + passed + " ns", 10, 400);
+            g2.drawString("WorldX " + player.worldX, 10, 420);
+            g2.drawString("WorldY " + player.worldY, 10, 440);
         }
         g2.dispose();
-
     }
 
-
+    /**
+     * Plays looping background music.
+     *
+     * @param key the music asset to play
+     */
     public void playMusic(SoundAssets key) {
         music.setFile(key);
         music.play();
-        music.loop();
     }
 
+    /**
+     * Plays a one-shot sound effect.
+     *
+     * @param key the sound effect asset to play
+     */
     public void playSoundEffect(SoundAssets key) {
         soundFx.setFile(key);
         soundFx.play();
     }
 
-
+    /**
+     * Toggles between PAUSED and PLAYING states.
+     */
     public void switchGamePauseState() {
-        if (this.gameState == GameState.PAUSED) {
-            this.gameState = GameState.PLAYING;
-        } else if (this.gameState == GameState.PLAYING) {
-            this.gameState = GameState.PAUSED;
-        }
+        if (gameState == GameState.PAUSED) gameState = GameState.PLAYING;
+        else if (gameState == GameState.PLAYING) gameState = GameState.PAUSED;
     }
 
+    /**
+     * Toggles between CHARACTER_STATE and PLAYING states.
+     */
     public void switchGameCharacterState() {
-        if(gameState == GameState.CHARACTER_STATE){
-            gameState = GameState.PLAYING;
-        }else {
-            gameState = GameState.CHARACTER_STATE;
-        }
+        if (gameState == GameState.CHARACTER_STATE) gameState = GameState.PLAYING;
+        else gameState = GameState.CHARACTER_STATE;
     }
 
+    /**
+     * @return the width of the game view in pixels
+     */
+    public int getScreenWidth() { return screenWidth; }
 
+    /**
+     * @return the height of the game view in pixels
+     */
+    public int getScreenHeight() { return screenHeight; }
 
-    public int getScreenWidth() {
-        return screenWidth;
-    }
-
-    public int getScreenHeight() {
-        return screenHeight;
-    }
-
-    public int getTileSize() {
-        return tileSize;
-    }
+    /**
+     * @return the size of a tile in pixels
+     */
+    public int getTileSize() { return tileSize; }
 }

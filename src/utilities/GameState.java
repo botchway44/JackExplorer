@@ -9,4 +9,5 @@ public enum GameState {
     DIALOG_STATE,
     PAUSED,
     CHARACTER_STATE,
+    GAME_OVER,
 }

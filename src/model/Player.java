@@ -13,66 +13,99 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-
+/**
+ * The Player class represents the main player character in the game.
+ * <p>
+ * It handles movement, input processing (keyboard and controller),
+ * collision detection, inventory management, combat interactions,
+ * and rendering of the player sprite.
+ * </p>
+ *
+ * @author Emmanuel Botwe
+ */
 public class Player extends Entity {
 
+    /** Reference to the main GamePanel for context and utilities. */
     GamePanel gp;
-    public KeyHandler keyH; //Change back to private
+
+    /** Keyboard handler for player input. */
+    public KeyHandler keyH; // Change back to private if desired
+
+    /** PS5 controller handler for gamepad input. */
     public PS5NewImplementation psHandler;
+
+    /** X coordinate on screen where the player sprite is drawn (centered). */
     public final int screenX;
+
+    /** Y coordinate on screen where the player sprite is drawn (centered). */
     public final int screenY;
 
+    /** Counter used to manage standing animation frames when idle. */
     private int standCounter = 0;
 
+    /** Collection of items the player has picked up. */
     public ArrayList<Entity> inventory = new ArrayList<>();
+
+    /** Maximum number of items allowed in the player's inventory. */
     public int maxInventorySize = 20;
 
-
+    /**
+     * Constructs a new Player.
+     *
+     * @param gp   the GamePanel instance for rendering and world state
+     * @param keyH the KeyHandler for keyboard input events
+     */
     public Player(GamePanel gp, KeyHandler keyH) {
         super(gp);
         this.gp = gp;
         this.keyH = keyH;
 
-        this.screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
+        // Center sprite on screen
+        this.screenX = gp.screenWidth  / 2 - (gp.tileSize / 2);
         this.screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
 
-
+        // Define collision bounding box
         this.solidArea = new Rectangle(10, 18, 30, 30);
-
         solidAreaDefaultX = solidArea.x;
         solidAreaDefaultY = solidArea.y;
 
-        this.setDefaultValues();
-        this.getPlayerImage();
+        setDefaultValues();
+        getPlayerImage();
         setInventory();
     }
 
-
-//    @Override
+    /**
+     * Initializes default position, speed, stats, and equipment.
+     */
     public void setDefaultValues() {
         worldX = gp.tileSize * 23;
         worldY = gp.tileSize * 21;
-        speed = 4;
+        speed = 6;
         direction = EntityDirection.DOWN;
+
         maxLife = 6;
         life = maxLife;
 
-        //STATS
         level = 1;
-        strength = 1;
+        strength = 2;
         dexterity = 1;
         exp = 0;
         nextLevelExp = 5;
         coin = 0;
+
         currentShield = new OBJ_Armor_Shield(gamePanel);
         currentWeapon = new OBJ_Bullet(gamePanel);
-        defense = getAttack(); // the total attack value is decided by the strength and weapon
-        attack = getDefense(); // the total defense value is decided by dexterity and shield
 
-        projectile = (Projectile) currentWeapon;
+        defense = getDefense();
+        attack  = getAttack();
+
+        projectile        = (Projectile) currentWeapon;
         defaultProjectile = projectile;
     }
 
+    /**
+     * Populates the player's inventory with initial items.
+     */
     public void setInventory() {
         inventory.add(currentWeapon);
         inventory.add(currentShield);
@@ -81,160 +114,125 @@ public class Player extends Entity {
         inventory.add(new OBJ_Grenade(gamePanel, GrenadeTypes.TYPE_THREE));
         inventory.add(new OBJ_FireBullets(gamePanel));
         inventory.add(new OBJ_FireBullets(gamePanel));
-
     }
 
-    public int getAttack(){
+    /**
+     * Returns the player's total attack (strength × weapon value).
+     *
+     * @return computed attack value
+     */
+    public int getAttack() {
         return strength * currentWeapon.attackValue;
     }
 
-    public int getDefense(){
+    /**
+     * Returns the player's total defense (dexterity × shield value).
+     *
+     * @return computed defense value
+     */
+    public int getDefense() {
         return dexterity * currentShield.defenseValue;
     }
 
+    /**
+     * Loads and scales directional sprite images for the player.
+     */
     public void getPlayerImage() {
         try {
-
-
-            up1 = UtilityTool.scaleImage(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/player-up-1.png"))), gp.tileSize, gp.tileSize);
-            up2 = UtilityTool.scaleImage(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/player-up-1.png"))), gp.tileSize, gp.tileSize);
-
-
-            down1 = UtilityTool.scaleImage(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/player-down-1.png"))), gp.tileSize, gp.tileSize);
-            down2 = UtilityTool.scaleImage(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/player-down-1.png"))), gp.tileSize, gp.tileSize);
-
-            right1 = UtilityTool.scaleImage(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/player-right-1.png"))), gp.tileSize, gp.tileSize);
-            right2 = UtilityTool.scaleImage(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/player-right-1.png"))), gp.tileSize, gp.tileSize);
-
-            left1 = UtilityTool.scaleImage(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/player-left-1.png"))), gp.tileSize, gp.tileSize);
-            left2 = UtilityTool.scaleImage(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/player-left-1.png"))), gp.tileSize, gp.tileSize);
-
-
+            up1     = UtilityTool.scaleImage(
+                    ImageIO.read(Objects.requireNonNull(
+                            getClass().getResourceAsStream("/player/player-up-1.png"))),
+                    gp.tileSize, gp.tileSize
+            );
+            up2     = up1;
+            down1   = UtilityTool.scaleImage(
+                    ImageIO.read(Objects.requireNonNull(
+                            getClass().getResourceAsStream("/player/player-down-1.png"))),
+                    gp.tileSize, gp.tileSize
+            );
+            down2   = down1;
+            right1  = UtilityTool.scaleImage(
+                    ImageIO.read(Objects.requireNonNull(
+                            getClass().getResourceAsStream("/player/player-right-1.png"))),
+                    gp.tileSize, gp.tileSize
+            );
+            right2  = right1;
+            left1   = UtilityTool.scaleImage(
+                    ImageIO.read(Objects.requireNonNull(
+                            getClass().getResourceAsStream("/player/player-left-1.png"))),
+                    gp.tileSize, gp.tileSize
+            );
+            left2   = left1;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    //check keyboard input
-    public void checkControllerDirections(){
-
-
-        if (this.gp.ps5Handler.upPressed ) {
-//			this.worldY -= this.speed;
-            this.direction = EntityDirection.UP;
-        }
-
-        if (this.gp.ps5Handler.downPressed) {
-//			this.worldY += this.speed;
-            this.direction = EntityDirection.DOWN;
-        }
-
-        if (this.gp.ps5Handler.leftPressed ) {
-//			this.worldX -= this.speed;
-            this.direction = EntityDirection.LEFT;
-        }
-
-        if (this.gp.ps5Handler.rightPressed) {
-//			this.worldX += this.speed;
-            this.direction = EntityDirection.RIGHT;
-        }
-
+    /**
+     * Updates movement direction based on PS5 controller input.
+     */
+    public void checkControllerDirections() {
+        if (gp.ps5Handler.upPressed)    direction = EntityDirection.UP;
+        if (gp.ps5Handler.downPressed)  direction = EntityDirection.DOWN;
+        if (gp.ps5Handler.leftPressed)  direction = EntityDirection.LEFT;
+        if (gp.ps5Handler.rightPressed) direction = EntityDirection.RIGHT;
     }
 
-    //check keyboard input
-    public void checkKeyboardDirections(){
-
-
-        if (this.keyH.upPressed) {
-//			this.worldY -= this.speed;
-            this.direction = EntityDirection.UP;
-        }
-
-        if (this.keyH.downPressed) {
-//			this.worldY += this.speed;
-            this.direction = EntityDirection.DOWN;
-        }
-
-        if (this.keyH.leftPressed) {
-//			this.worldX -= this.speed;
-            this.direction = EntityDirection.LEFT;
-        }
-
-        if (this.keyH.rightPressed) {
-//			this.worldX += this.speed;
-            this.direction = EntityDirection.RIGHT;
-        }
-
+    /**
+     * Updates movement direction based on keyboard arrow keys.
+     */
+    public void checkKeyboardDirections() {
+        if (keyH.upPressed)    direction = EntityDirection.UP;
+        if (keyH.downPressed)  direction = EntityDirection.DOWN;
+        if (keyH.leftPressed)  direction = EntityDirection.LEFT;
+        if (keyH.rightPressed) direction = EntityDirection.RIGHT;
     }
 
+    /**
+     * Called each frame to update player state: movement, collisions,
+     * picking up objects, NPC/monster interactions, and animations.
+     */
     @Override
     public void update() {
+        boolean moving = keyH.upPressed   || keyH.downPressed  ||
+                keyH.leftPressed || keyH.rightPressed ||
+                gp.ps5Handler.upPressed   || gp.ps5Handler.downPressed  ||
+                gp.ps5Handler.leftPressed || gp.ps5Handler.rightPressed ||
+                keyH.enterPressed;
 
-        //optimize this check
-        if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed
-        || gp.ps5Handler.upPressed || gp.ps5Handler.downPressed || gp.ps5Handler.leftPressed || gp.ps5Handler.rightPressed || keyH.enterPressed
-        ) {
+        if (moving) {
+            checkKeyboardDirections();
+            checkControllerDirections();
 
-            this.checkKeyboardDirections();
-            this.checkControllerDirections();
-
-            //CHECK TILE COLLISION
             collisionOn = false;
             gp.collisionChecker.checkTile(this);
 
-            //Check object collision
             int objectIndex = gp.collisionChecker.checkObject(this, true);
             pickUpObject(objectIndex);
 
-            //Check NPC Collision
-//            Entities e = gp.collisionChecker.checkEntityCollision(this,gp.npcs);
-            int e = gp.collisionChecker.checkEntityCollision(this,gp.npcs);
+            int npcIndex = gp.collisionChecker.checkEntityCollision(this, gp.npcs);
+            interactWithNPC(npcIndex);
 
-            interactWithNPC(e);
-
-            //Check Monster Collision
             int monsterIndex = gp.collisionChecker.checkEntityCollision(this, gp.monsters);
             contactMonster(monsterIndex);
 
-            //Check Events
             gp.eventHandler.checkEvent();
 
-
-
-            //if the collision is false, player can move
             if (!collisionOn && !keyH.enterPressed) {
                 switch (direction) {
-                    case UP:
-                        this.worldY -= this.speed;
-                        break;
-                    case DOWN:
-                        this.worldY += this.speed;
-                        break;
-                    case LEFT:
-                        this.worldX -= this.speed;
-                        break;
-                    case RIGHT:
-                        this.worldX += this.speed;
-                        break;
+                    case UP:    worldY -= speed; break;
+                    case DOWN:  worldY += speed; break;
+                    case LEFT:  worldX -= speed; break;
+                    case RIGHT: worldX += speed; break;
                 }
             }
+            keyH.enterPressed = false;
 
-
-            //update enter key pressed
-            gp.keyH.enterPressed = false;
-
-            this.spriteCounter++;
-
-            if (this.spriteCounter > 10) {
-                if (this.spriteNum == 1) {
-                    this.spriteNum = 2;
-                } else if (this.spriteNum == 2) {
-                    this.spriteNum = 1;
-                }
-
-                this.spriteCounter = 0;
+            spriteCounter++;
+            if (spriteCounter > 10) {
+                spriteNum = (spriteNum == 1) ? 2 : 1;
+                spriteCounter = 0;
             }
-
 
         } else {
             standCounter++;
@@ -244,260 +242,181 @@ public class Player extends Entity {
             }
         }
 
-        if(gamePanel.keyH.shootKeyPressed){
-            projectile.set(worldX,worldY, direction, true, this);
-
-            //use the current projectile here
-//           setCurrentProject(defaultProjectile);
-
+        // Handle shooting
+        if (gamePanel.keyH.shootKeyPressed) {
+            projectile.set(worldX, worldY, direction, true, this);
             gamePanel.projectileList.add(projectile);
             gamePanel.playSoundEffect(SoundAssets.SHOOT);
-
             setCurrentProject(defaultProjectile);
-
         }
 
-        //count player invisibility
-        if(invincible){
+        // Handle invincibility timer
+        if (invincible) {
             invincibleCounter++;
-            if(invincibleCounter >60 ){
-                invincibleCounter = 0;
+            if (invincibleCounter > 60) {
                 invincible = false;
+                invincibleCounter = 0;
+            }
+        }
+
+        //Handle Life
+        if (life <=0){
+            this.gamePanel.gameState = GameState.GAME_OVER;
+        }
+    }
+
+    /**
+     * Handles interaction when colliding with an NPC.
+     *
+     * @param index index of the NPC collided with, or -1 if none
+     */
+    private void interactWithNPC(int index) {
+        if (index >= 0 && keyH.enterPressed) {
+            gp.gameState = GameState.DIALOG_STATE;
+            gp.npcs[index].speak();
+        }
+    }
+
+    /**
+     * Handles taking damage when colliding with a monster.
+     *
+     * @param index index of the monster collided with, or -1 if none
+     */
+    public void contactMonster(int index) {
+        if (index >= 0 && !invincible && gp.monsters[index].dying) {
+            gp.playSoundEffect(SoundAssets.RECEIVE_DAMAGE);
+            int damage = gp.monsters[index].attack - defense;
+            if (damage < 0) damage = 0;
+            gp.monsters[index].life -= damage;
+            invincible = true;
+        }
+    }
+
+    /**
+     * Inflicts damage on a monster, handles its death, and awards experience.
+     *
+     * @param index  index of the target monster
+     * @param attack attack value to apply
+     */
+    public void damageMonster(int index, int attack) {
+        if (index >= 0 && !gp.monsters[index].invincible) {
+            gp.monsters[index].invincible = true;
+            int damage = attack - gp.monsters[index].defense;
+            if (damage < 0) damage = 0;
+            gp.monsters[index].life -= damage;
+            gamePanel.uiController.addMessage(damage + " damage");
+            gp.playSoundEffect(SoundAssets.HIT_MONSTER);
+
+            if (gp.monsters[index].life <= 0) {
+                gp.monsters[index].dying = true;
+                gamePanel.uiController.addMessage("Killed the " + gp.monsters[index].name);
+                gamePanel.uiController.addMessage("Exp " + gp.monsters[index].exp);
+                exp += gp.monsters[index].exp;
+                checkLevelUp();
             }
         }
     }
 
-    private void interactWithNPC(Entities e) {
-//        if(e != null) {
-//
-//            if(gp.keyH.enterPressed){
-//
-//            System.out.println("interactWithNPC"+ e.toString());
-//            gp.gameState = GameState.DIALOG_STATE;
-//            gp.npcs.get(e).speak();
-//
-//            } else {
-//                gp.gameState = GameState.DIALOG_STATE;
-//                System.out.println("Collided WithNPC"+ e.toString());
-//                gp.npcs.get(e).speak();
-//
-//            }
-//        }
-
-
-
-    }
-
-    private void interactWithNPC(int i) {
-        if(i >= 0) {
-
-            if(gp.keyH.enterPressed){
-
-                System.out.println("interactWithNPC"+ gp.npcs[i].toString());
-                gp.gameState = GameState.DIALOG_STATE;
-                gp.npcs[i].speak();
-
-            }
-        }
-
-
-
-    }
-
-
-    public void contactMonster(int i){
-        System.out.println("contactMonster Again");
-        if(i >=0){
-            if(!invincible && gp.monsters[i].dying) {
-                gp.playSoundEffect(SoundAssets.RECEIVE_DAMAGE);
-                int damage = gp.monsters[i].attack - defense ;
-                if(damage < 0){
-                    damage = 0;
-                }
-                gp.monsters[i].life -=damage;
-
-                invincible = true;
-            }
-        }
-    }
-
-
-    public void damageMonster(int i, int attack){
-        if (i >= 0) {
-            if(!gp.monsters[i].invincible){
-                gp.monsters[i].invincible = true;
-
-                int damage = attack - gp.monsters[i].defense;
-                if(damage < 0){
-                    damage = 0;
-                }
-                gp.monsters[i].life -=damage;
-                gamePanel.uiController.addMessage(damage + " damage");
-                gp.playSoundEffect(SoundAssets.HIT_MONSTER);
-
-
-                if(gp.monsters[i].life <=0){
-                    gp.monsters[i].dying = true;
-                    gamePanel.uiController.addMessage("Killed the " + gamePanel.monsters[i].name);
-
-                    gamePanel.uiController.addMessage("Exp " + gamePanel.monsters[i].exp);
-                    exp += gamePanel.monsters[i].exp;
-
-                    checkLevelUp();
-
-                }
-            }
-        }
-
-
-    }
-
-    public void checkLevelUp(){
-        if(exp >= nextLevelExp){
+    /**
+     * Checks if the player has enough experience to level up, and does so.
+     */
+    public void checkLevelUp() {
+        if (exp >= nextLevelExp) {
             level++;
-            nextLevelExp = nextLevelExp*2;
-            maxLife +=2;
+            nextLevelExp *= 2;
+            maxLife += 2;
             strength++;
             dexterity++;
             attack = getAttack();
             defense = getDefense();
-
             gamePanel.playSoundEffect(SoundAssets.LEVEL_UP);
             gamePanel.gameState = GameState.DIALOG_STATE;
-            gamePanel.uiController.currentDialog = "You are at Level " + level +" now\n"
-            + "You feel Stronger";
+            gamePanel.uiController.currentDialog =
+                    "You are at Level " + level + " now\nYou feel Stronger";
         }
     }
 
+    /**
+     * Attempts to pick up an object at the given index.
+     *
+     * @param objectIndex index of the object in the gameObjects array
+     */
     private void pickUpObject(int objectIndex) {
-
-
         if (objectIndex >= 0 && objectIndex < gp.gameObjects.length) {
             Entity object = gp.gameObjects[objectIndex];
-//            System.out.println();
-
             String text = "";
 
             if (Objects.equals(object.name, Constants.CHEST)) {
                 speed += 5;
-                this.gp.playSoundEffect(SoundAssets.POWERUP);
-
-                this.gp.uiController.addMessage("You picked up a Chest with Speed Booster");
+                gp.playSoundEffect(SoundAssets.POWERUP);
+                gp.uiController.addMessage("You picked up a Chest with Speed Booster");
 
             } else if (Objects.equals(object.name, Constants.KEY)) {
-                this.gp.playSoundEffect(SoundAssets.COIN);
-
-                this.gp.gameObjects[objectIndex] = null;
-
-                if(inventory.size() <= maxInventorySize){
+                gp.playSoundEffect(SoundAssets.COIN);
+                gp.gameObjects[objectIndex] = null;
+                if (inventory.size() <= maxInventorySize) {
                     text = "You picked a " + object.name;
                     inventory.add(object);
-                }else {
-                    text = "You cannot any more object ";
+                } else {
+                    text = "You cannot carry any more items";
                 }
-                this.gp.uiController.addMessage(text);
+                gp.uiController.addMessage(text);
 
             } else if (Objects.equals(object.name, Constants.DOOR)) {
-                this.gp.playSoundEffect(SoundAssets.UNLOCK);
+                gp.playSoundEffect(SoundAssets.UNLOCK);
             }
-            //Pick up Like keys and use the keys to open doors
-
         }
     }
 
-     public void draw(Graphics g2) {
-
-
+    /**
+     * Draws the player sprite at its screen position.
+     *
+     * @param g2 the Graphics context
+     */
+    public void draw(Graphics g2) {
         BufferedImage image = null;
-
         switch (direction) {
-            case UP:
-
-                if (spriteNum == 1) {
-                    image = up1;
-                } else if (spriteNum == 2) {
-                    image = up2;
-                }
-                break;
-
-            case DOWN:
-
-                if (spriteNum == 1) {
-                    image = down1;
-                } else if (spriteNum == 2) {
-                    image = down2;
-                }
-
-                break;
-
-            case RIGHT:
-//			image = right1;
-
-                if (spriteNum == 1) {
-                    image = right1;
-                } else if (spriteNum == 2) {
-                    image = right2;
-                }
-
-                break;
-
-            case LEFT:
-//			image = left1;
-
-                if (spriteNum == 1) {
-                    image = left1;
-                } else if (spriteNum == 2) {
-                    image = left2;
-                }
-
-                break;
+            case UP:    image = (spriteNum == 1) ? up1    : up2;    break;
+            case DOWN:  image = (spriteNum == 1) ? down1  : down2;  break;
+            case RIGHT: image = (spriteNum == 1) ? right1 : right2; break;
+            case LEFT:  image = (spriteNum == 1) ? left1  : left2;  break;
         }
-
-
         g2.drawImage(image, screenX, screenY, null);
-
-
-        System.out.println("Using this for Player");
     }
 
-
+    /**
+     * Allows the player to select an inventory item for use.
+     */
     public void selectItem() {
         int itemIndex = gamePanel.uiController.getIntemIndex();
-        if(itemIndex < inventory.size()){
+        if (itemIndex < inventory.size()) {
             Entity object = inventory.get(itemIndex);
-            if(object.type == Entities.WEAPON){
+            if (object.type == Entities.WEAPON) {
                 currentWeapon = object;
                 attack = getAttack();
-
                 setCurrentProject(object);
             }
-
-            if(object.type == Entities.SHIELD){
+            if (object.type == Entities.SHIELD) {
                 currentShield = object;
                 defense = getDefense();
             }
-
-            if (object.type == Entities.CONSUMABLE){
-                //later
-            }
+            // Consumables can be handled here in future
         }
     }
 
-    public void setCurrentProject(Object object){
-        //check the type of objec
-        if(object instanceof OBJ_FireBullets){
-            this.projectile = new OBJ_FireBullets(this.gamePanel);
-            this.defaultProjectile =  new OBJ_FireBullets(this.gamePanel);
-            System.out.println("This is the Fire Bullets");
+    /**
+     * Sets the current projectile type based on the given object.
+     *
+     * @param object the weapon or projectile object
+     */
+    public void setCurrentProject(Object object) {
+        if (object instanceof OBJ_FireBullets) {
+            this.projectile        = new OBJ_FireBullets(this.gamePanel);
+            this.defaultProjectile = new OBJ_FireBullets(this.gamePanel);
         }
-        else if (object instanceof OBJ_Bullet){
-            this.projectile = new OBJ_Bullet(this.gamePanel);
-            this.defaultProjectile =  new OBJ_Bullet(this.gamePanel);
+        else if (object instanceof OBJ_Bullet) {
+            this.projectile        = new OBJ_Bullet(this.gamePanel);
+            this.defaultProjectile = new OBJ_Bullet(this.gamePanel);
         }
-
-        System.out.println("This is the Projectile " + this.projectile.life);
-//        projectile.life = maxLife;
-//        projectile.alive = true;
-//        projectile.dying = false;
     }
 }

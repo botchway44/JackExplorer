@@ -24,6 +24,9 @@ public class Sound {
         soundUrlMap.put(SoundAssets.LEVEL_UP, getClass().getResource("/sound/levelup.wav"));
         soundUrlMap.put(SoundAssets.CURSOR, getClass().getResource("/sound/cursor.wav"));
         soundUrlMap.put(SoundAssets.SHOOT, getClass().getResource("/sound/shoot.wav"));
+        soundUrlMap.put(SoundAssets.TITLE_SCREEN, getClass().getResource("/sound/intro/Superhero_violin.wav"));
+        soundUrlMap.put(SoundAssets.PAUSED, getClass().getResource("/sound/pause/paused.wav"));
+
 
 
 
@@ -52,5 +55,9 @@ public class Sound {
 
     public void stop() {
         clip.stop();
+    }
+
+    public boolean isPlaying() {
+        return clip.isRunning();
     }
 }

@@ -10,7 +10,7 @@ public class OBJ_Bullet extends Projectile{
 
         type = Entities.WEAPON;
         name = Constants.BULLET;
-        speed = 5;
+        speed = 10;
         maxLife = 120;
         life = maxLife;
         attack = 10;

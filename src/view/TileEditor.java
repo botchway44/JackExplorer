@@ -21,7 +21,7 @@ public class TileEditor   extends JPanel implements Runnable, MouseListener {
 
     public TileEditor(){
         this.gamePanel = new GamePanel();
-        setSize(this.gamePanel.worldWidth, this.gamePanel.worldheight);
+        setSize(this.gamePanel.worldWidth, this.gamePanel.worldHeight);
 
         this.tileManager = new TileManager(this.gamePanel, 0.4f);
         assetSetter = new AssetSetter(gamePanel);

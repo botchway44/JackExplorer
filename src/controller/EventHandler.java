@@ -54,19 +54,18 @@ public class EventHandler {
         if(!canTouchEvent) return;
 
 
-        if (hit(23, 21, EntityDirection.ALL)) {
-            damageBomb(23,21,GameState.DIALOG_STATE);
-            System.out.println("TRIGGER BOMB");
-
-        }
-
-        if (hit(23, 12, EntityDirection.UP)) {
-            this.healingPool(23,21, GameState.DIALOG_STATE);
-        }
-
-        if (hit(27, 16, EntityDirection.ALL)) {
-            this.teleport(GameState.DIALOG_STATE);
-        }
+//        if (hit(23, 21, EntityDirection.ALL)) {
+//            damageBomb(23,21,GameState.DIALOG_STATE);
+//            System.out.println("TRIGGER BOMB");
+//        }
+//
+//        if (hit(23, 12, EntityDirection.UP)) {
+//            this.healingPool(23,21, GameState.DIALOG_STATE);
+//        }
+//
+//        if (hit(27, 16, EntityDirection.ALL)) {
+//            this.teleport(GameState.DIALOG_STATE);
+//        }
     }
 
 

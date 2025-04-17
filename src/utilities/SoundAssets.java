@@ -1,6 +1,8 @@
 package utilities;
 
 public enum SoundAssets {
+    TITLE_SCREEN,
+    PAUSED,
     BACKGROUND,
     COIN,
     POWERUP,
